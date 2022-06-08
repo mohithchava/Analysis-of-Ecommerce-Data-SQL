@@ -1,0 +1,294 @@
+--Creating the datbase and the tables
+CREATE DATABASE "E Commerce Data"
+	WITH 
+	OWNER = postgres    
+	ENCODING = 'UTF8'
+	CONNECTION LIMIT = -1;
+
+CREATE TABLE public.customers
+	(customer_id character varying,
+	 customer_zip_code_prefix bigint,
+	 PRIMARY KEY (customer_id));
+
+CREATE TABLE public.geolocation
+	(geolocation_zip_code_prefix bigint,
+	 geolocation_city character varying,
+	 geolocation_state character varying,
+	 PRIMARY KEY (geolocation_zip_code_prefix));
+
+CREATE TABLE public.order_items
+	(order_id character varying,   
+	 order_item_id integer,
+	 product_id character varying,
+	 seller_id character varying,
+	 price numeric,
+	 PRIMARY KEY (order_id, order_item_id));
+
+CREATE TABLE public.order_payments
+	(order_id character varying,
+	 payment_sequential integer,  
+	 payment_type character varying,   
+	 payment_installments integer,
+	 payment_value numeric,
+	 PRIMARY KEY (order_id, payment_sequential));
+
+CREATE TABLE public.orders
+	(order_id character varying,
+	 customer_id character varying,
+	 order_status character varying,
+    order_purchase_timestamp timestamp without time zone,
+    order_approved_at timestamp without time zone,
+    order_delivered_carrier_date timestamp without time zone,
+    order_delivered_customer_data timestamp without time zone,
+    PRIMARY KEY (order_id)
+	);
+
+CREATE TABLE public.products
+(
+    product_id character varying,
+    product_category_name character varying,
+    PRIMARY KEY (product_id)
+);
+
+CREATE TABLE public.reviews
+(
+    review_id character varying,
+    review_score integer,
+    review_creation_date timestamp without time zone,
+    review_answer_timestamp timestamp without time zone,
+    PRIMARY KEY (review_id)
+);
+
+CREATE TABLE public.sellers
+(
+    seller_id character varying,
+    seller_zip_code_prefix integer,
+    PRIMARY KEY (seller_id)
+);
+
+CREATE TABLE public.product_category_translation
+(
+    product_category_name character varying,
+    product_category_name_english character varying,
+    PRIMARY KEY (product_category_name)
+);
+
+CREATE TABLE public.mql
+(
+    mql_id character varying,
+    first_contact_date date,
+    origin character varying,
+    PRIMARY KEY (mql_id)
+);
+
+CREATE TABLE public.closed_deals
+(
+    mql_id character varying,
+    seller_id character varying,
+    won_date timestamp without time zone,
+    business_segment character varying,
+    lead_type character varying,
+    lead_behavior_profile character varying,
+    business_type character varying,
+    PRIMARY KEY (mql_id)
+);
+
+--Adding constraints
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_customers 
+FOREIGN KEY (customer_id) 
+REFERENCES customers (customer_id);
+
+ALTER TABLE order_items
+ADD CONSTRAINT fk_order_product 
+FOREIGN KEY (product_id) 
+REFERENCES products (product_id);
+
+ALTER TABLE order_items
+ADD CONSTRAINT fk_order_seller 
+FOREIGN KEY (seller_id) 
+REFERENCES sellers (seller_id);
+
+
+ALTER TABLE closed_deals
+ADD CONSTRAINT fk_deals_seller 
+FOREIGN KEY (seller_id) 
+REFERENCES sellers (seller_id);
+
+ALTER TABLE customers
+ADD CONSTRAINT fk_cust_zip 
+FOREIGN KEY (customer_zip_code_prefix) 
+REFERENCES geolocation (geolocation_zip_code_prefix);
+
+
+ALTER TABLE sellers
+ADD CONSTRAINT fk_seller_zip 
+FOREIGN KEY (seller_zip_code_prefix) 
+REFERENCES geolocation (geolocation_zip_code_prefix);
+
+--Loading the data
+COPY closed_deals
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_closed_deals_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY customers
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_customers_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY geolocation
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_geolocation_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY mql
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_marketing_qualified_leads_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY order_items
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_order_items_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY order_payments
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_order_payments_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY order_reviews
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_order_reviews_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY orders
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_orders_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY product_category_translation
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\product_category_name_translation.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY products
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_products_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY reviews
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_reviews_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY sellers
+FROM 'E:\MS ES DS\SEM 2\CSE 460\Project Data\olist_sellers_dataset.csv'
+DELIMITER ','
+CSV HEADER;
+
+--Viewing sample data
+SELECT * FROM reviews
+
+SELECT * FROM mql
+
+--Query executions
+SELECT * FROM reviews
+WHERE (EXTRACT(YEAR FROM review_creation_date) = 2018 AND 
+EXTRACT(MONTH FROM review_creation_date) = 2)
+
+INSERT INTO customers(customer_id, customer_zip_code_prefix)
+VALUES ('f78374342g34837gg47846274ghhh3hkk', 8775)
+
+SELECT * FROM customers 
+WHERE customer_id = 'f78374342g34837gg47846274ghhh3hkk'
+
+
+INSERT INTO reviews(review_id, 
+					review_score, 
+					review_creation_date, 
+					review_answer_timestamp)
+VALUES('F8786VY875656G5feef67746576vd', 
+	   3, 
+	   '2022-02-21 00:00:00', 
+	   '2022-01-30 16:23:00')
+
+SELECT * FROM reviews 
+WHERE EXTRACT(YEAR FROM review_creation_date) = 2022
+
+
+DELETE FROM closed_deals
+WHERE lead_type IS NULL
+
+SELECT * FROM closed_deals
+WHERE lead_type IS NULL
+
+UPDATE order_items
+SET price = 60
+WHERE product_id = '4244733e06e7ecb4970a6e2683c13e61'
+
+SELECT order_id, product_id, price FROM order_items
+WHERE product_id = '4244733e06e7ecb4970a6e2683c13e61'
+
+SELECT t2.product_category, SUM(t1.num_orders) num_orders FROM
+	(SELECT COUNT(order_id) AS num_orders, product_id  
+	 FROM order_items
+	 GROUP BY product_id) AS t1 
+JOIN
+	(SELECT product_id, product_category_name_english AS product_category 
+	 FROM products pd
+	 JOIN product_category_translation pct
+	 ON pd.product_category_name = pct.product_category_name) AS t2
+ON t1.product_id = t2.product_id
+GROUP BY t2.product_category
+ORDER BY num_orders DESC
+
+
+
+SELECT t2.business_type,
+	t2.ct*100 /(SELECT SUM(ct) FROM 
+			   (SELECT business_type, COUNT(business_type) ct
+				FROM closed_deals
+				GROUP BY business_type) t1
+			   ) pct_of_count
+	FROM
+	(SELECT business_type, COUNT(business_type) ct
+	FROM closed_deals
+	GROUP BY business_type) t2
+
+
+SELECT geolocation_state state,count(customer_id) num_cust FROM customers c
+JOIN geolocation g
+ON c.customer_zip_code_prefix = g.geolocation_zip_code_prefix
+GROUP BY g.geolocation_state
+ORDER BY num_cust DESC limit 5
+
+
+SELECT T2.seller_id,T1.geolocation_city, T1.geolocation_state, T2.sales
+FROM
+	(SELECT seller_id, count(order_id) sales
+	FROM order_items
+	GROUP BY seller_id 
+	) T2
+JOIN 
+	(SELECT s.seller_id, g.geolocation_city, g.geolocation_state
+	FROM sellers s
+	JOIN geolocation g 
+	ON s.seller_zip_code_prefix = g.geolocation_zip_code_prefix) T1
+ON T1.seller_id =T2.seller_id
+ORDER BY sales DESC LIMIT 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
